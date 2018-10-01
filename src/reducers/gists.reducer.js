@@ -19,11 +19,11 @@ export default function gistsReducer(state = initialState, action) {
         }
 
     case actionTypes.GETALL_SUCCESS:
-        if(payload.data) {
+        if(payload) {
             return {
                 ...state,
                 isLoading: false,
-                gists: payload.data
+                gists: payload
             };
         }
         else {
@@ -80,7 +80,7 @@ export default function gistsReducer(state = initialState, action) {
     
     case actionTypes.DELETE_SUCCESS:
         if(payload) {
-            let gists = state.gists.filter(x => x.id != payload)
+            let gists = state.gists.filter(x => x.id !== payload)
             return {
                 ...state,
                 isLoading: false,
@@ -92,7 +92,7 @@ export default function gistsReducer(state = initialState, action) {
     case actionTypes.DELETE_FAILURE:
         console.error('DELETE_GIST_ERROR : ', action.error)
         if(payload) {
-            let gists = state.gists.filter(x => x.id != payload)
+            let gists = state.gists.filter(x => x.id !== payload)
             return {
                 ...state,
                 isLoading: false,
