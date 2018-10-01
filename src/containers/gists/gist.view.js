@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as gistsActions from '../../actions/gists.actions';
@@ -25,20 +24,25 @@ class Gist extends Component {
     findGist = () => {
         const id = this.props.match.params.id
 
-        axios({url: `https://api.github.com/gists/${id}`, method: "GET"}).then(resp => {
-
-            Object.values(resp.data.files).map((f,index)=> {
+        fetch(`https://api.github.com/gists/${id}`)
+        .then(results => {
+            return results.json()
+        })
+        .then(data => {
+            console.log(data)
+            Object.values(data.files).map((f,index)=> {
                 this.setState((prevState) => ({
                     files: [...prevState.files, {name: f.filename, content: f.content, raw_url: f.raw_url}]
                 }))
+                return 1
             })
 
-            this.setState({gist: resp.data,description: resp.data.description, isLoading: false})
-
-        }).catch(err => {
+            this.setState({gist: data,description: data.description, isLoading: false})
+        }).catch(error => {
             this.setState({files:null,isLoading: false})
-            console.log(err)
+            console.log(error)
         })
+
     }
 
     onSubmit = (model) => {

@@ -9,14 +9,26 @@ export function getAllGists() {
     const user = JSON.parse(localStorage.getItem('user'));
 
     return (dispatch) => {
+
         dispatch({type: ActionTypes.REQUEST_GIST_ACTION});
 
-        axios({
-            url: `${API_URL}/users/${user.login}/gists`,
-            method: "GET"
-        }).then(payload => {
-            dispatch({type: ActionTypes.GETALL_SUCCESS, payload})
-        }).catch(error => dispatch({type: ActionTypes.GETALL_FAILURE, error}))
+        fetch(`${API_URL}/users/${user.login}/gists`)
+        .then(results => {
+            return results.json()
+        })
+        .then(data => {
+            console.log(data)
+            dispatch({type: ActionTypes.GETALL_SUCCESS, payload: data})
+        }).catch(error => {
+            dispatch({type: ActionTypes.GETALL_FAILURE, error})
+        })
+
+        // axios({
+        //     url: `${API_URL}/users/${user.login}/gists`,
+        //     method: "GET"
+        // }).then(payload => {
+        //     dispatch({type: ActionTypes.GETALL_SUCCESS, payload})
+        // }).catch(error => dispatch({type: ActionTypes.GETALL_FAILURE, error}))
     }
 
 }
@@ -35,7 +47,6 @@ export function deleteGist(id) {
                 "Authorization":  `token ${token}`
             }
         }).then(payload => {
-            console.log('DEL pAy: ',payload)
             dispatch({type: ActionTypes.DELETE_SUCCESS, payload: id})
         })
         .catch(error => dispatch({type: ActionTypes.DELETE_FAILURE, error, payload: id}))

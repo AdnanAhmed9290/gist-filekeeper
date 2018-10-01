@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import { Link } from 'react-router-dom';
 import {bindActionCreators} from 'redux';
+// import axios from 'axios';
 import * as gistsActions from '../../actions/gists.actions';
 
 import Pagination from '../../components/pagination/pagination'
@@ -16,15 +17,39 @@ class Gists extends React.Component {
       allGists: [],
       currentGists: [],
       currentPage: null,
-      totalPages: null
+      totalPages: null,
+      pageLimit: 5
     }
   }
 
   componentDidMount() {
+    
+    this.getGists();
+
     this
       .props
       .gistsActions
       .getAllGists();
+
+  }
+
+  getGists = () => {
+
+    fetch(`https://api.github.com/users/${this.props.user.login}/gists`)
+    .then(results => {
+      return results.json()
+    })
+    .then(data => {
+      // console.log(data)
+    }).catch(error => {
+      console.log(error)
+    })
+  
+  }
+
+  handleSelectChange = (e) => {
+    this.setState({pageLimit: parseInt(e.target.value, 10)})
+    this.onPageChanged
   }
 
 
@@ -43,7 +68,14 @@ class Gists extends React.Component {
     return (
       <div className="container text-left">
 
-        <Link className="btn btn-primary" to="/add" >Add New Gist</Link>
+        <div className="d-flex justify-content-between">
+          <Link className="btn btn-primary" to="/add" >Add New Gist</Link>
+          <select className="form-control" style={{maxWidth: '100px'}} value={this.state.pageLimit} onChange={this.handleSelectChange}>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+          </select>
+        </div>
 
         <table className="table table-bordered mt-3 text-center">
           <thead>
@@ -78,7 +110,7 @@ class Gists extends React.Component {
             }
 
             {
-              !this.props.isLoading && this.props.gists.length == 0 && 
+              !this.props.isLoading && this.props.gists.length === 0 && 
               <tr><td colSpan="5">You have no data</td></tr>
             }
 
@@ -89,7 +121,7 @@ class Gists extends React.Component {
         <div className="d-flex flex-row py-4 align-items-center">
             <Pagination
               totalRecords={this.props.gists.length}
-              pageLimit={6}
+              pageLimit={this.state.pageLimit}
               pageNeighbours={1}
               onPageChanged={this.onPageChanged}
             />
@@ -103,7 +135,8 @@ class Gists extends React.Component {
 
 const mapStateToProps = state => {
   const {isLoading, gists} = state.gistsReducer;
-  return {isLoading, gists};
+  const {user} = state.userReducer;
+  return {isLoading, gists, user};
 }
 
 const mapDispatchToProps = dispatch => ({
