@@ -2,47 +2,15 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import * as gistsActions from '../../actions/gists.actions';
-import DynamicForm from './component/DynamicForm.view';
+import * as gistsActions from '../../actions/GistsActions';
+import DynamicReduxForm from './component/DynamicReduxForm';
+
 
 class Gist extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            isLoading: true,
-            description: '',
-            files: [],
-            gist: {}
-        }
-    }
-
     componentDidMount() {
-        this.findGist()
-    }
-
-    findGist = () => {
         const id = this.props.match.params.id
-
-        fetch(`https://api.github.com/gists/${id}`)
-        .then(results => {
-            return results.json()
-        })
-        .then(data => {
-            console.log(data)
-            Object.values(data.files).map((f,index)=> {
-                this.setState((prevState) => ({
-                    files: [...prevState.files, {name: f.filename, content: f.content, raw_url: f.raw_url}]
-                }))
-                return 1
-            })
-
-            this.setState({gist: data,description: data.description, isLoading: false})
-        }).catch(error => {
-            this.setState({files:null,isLoading: false})
-            console.log(error)
-        })
-
+        this.props.gistsActions.getSingleGist(id)
     }
 
     onSubmit = (model) => {
@@ -54,13 +22,13 @@ class Gist extends Component {
 
     render() {
 
-        const {description, isLoading, files,gist} = this.state
+        const { isLoading, currentGist} = this.props
 
         if (isLoading) {
             return <h4>Loading.....</h4>
         }
 
-        if(files == null) {
+        if(currentGist == null) {
             alert("Gist doesn't exist");
             this.props.history.push('/gists');
             return;
@@ -68,16 +36,16 @@ class Gist extends Component {
 
         return (
             <div className="container text-left">
-                <h1>{description}</h1>
-                <h5>Owner: <b>{gist.owner.login}</b></h5>
-                <p className="m-0">Created at: {new Date(gist.created_at).toLocaleDateString()}</p>
-                <p className="m-0">Last Updared: {new Date(gist.updated_at).toLocaleDateString()}</p>
-                <DynamicForm 
+                <h1>{currentGist.description}</h1>
+                <h5>Owner: <b>{currentGist.owner}</b></h5>
+                <p className="m-0">Created at: {new Date(currentGist.created_at).toLocaleDateString()}</p>
+                <p className="m-0">Last Updared: {new Date(currentGist.updated_at).toLocaleDateString()}</p>
+                <DynamicReduxForm 
                     className="updateForm"
                     onSubmit = {(model) => {this.onSubmit(model)}}
-                    data = {this.state}
+                    // data = {this.state}
                     role= "UPDATE"
-                    isFetching = {isLoading}
+                    // isFetching = {isLoading}
                 />
                 
 
@@ -89,12 +57,12 @@ class Gist extends Component {
 
 Gist.prototypes = {
     isLoading: PropTypes.bool,
-    gists: PropTypes.object.isRequired
+    currentGist: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => {
-    const {isLoading, gists} = state.gistsReducer;
-    return {isLoading, gists};
+    const {isLoading, currentGist} = state.gistsReducer;
+    return {isLoading, currentGist};
 }
 
 const mapDispatchToProps = dispatch => ({

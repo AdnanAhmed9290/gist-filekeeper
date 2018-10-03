@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React from 'react';
 // import PropTypes from 'prop-types';
 import axios from 'axios';
-import SearchBar from '../../components/search/search'
+import SearchBar from '../../components/Search'
 
 class Home extends React.Component {
 

@@ -1,4 +1,4 @@
-import * as actionTypes from '../actions/userActionTypes';
+import * as actionTypes from '../actions/UserActionTypes';
 
 export const STATE_KEY = 'currentUser';
 

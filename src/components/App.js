@@ -1,17 +1,18 @@
 import React, {Component} from 'react';
 import './App.css';
-import {BrowserRouter, Route, Redirect } from 'react-router-dom';
+import {BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import PropTypes from 'prop-types';
-import Home from './../containers/home/home.view';
-import Gists from './../containers/gists/gists.view';
-import Gist from './../containers/gists/gist.view';
-import AddGist from './../containers/gists/addGist.view';
-import Auth from "./auth/auth";
-import Header from "../components/header/header";
+import Home from '../containers/Home/Home.View';
+import Gists from '../containers/gists/Gists.view';
+import Gist from '../containers/gists/Gist.view';
+import AddGist from '../containers/gists/AddGist.view';
+import DynamicReduxForm from "./../containers/gists/component/DynamicReduxForm";
+import Auth from "./Auth/Auth";
+import Header from "../components/Header/Header";
 
-import * as userActions from '../actions/user.actions';
+import * as userActions from '../actions/UserActions';
 
 
 function AuthenticatedRoute({ component: Component, authenticated, ...rest}) {
@@ -60,6 +61,7 @@ class App extends Component {
               user={currentUser}
               handleLogout={() => {this.logout()}}/>
             <br/>
+            <Switch>
             <AuthenticatedRoute
               exact
               path="/"
@@ -82,6 +84,12 @@ class App extends Component {
               component={AddGist}/>
             <Route
               exact
+              path="/form"
+              component={DynamicReduxForm}  
+            />
+
+            <Route
+              exact
               path="/login"
               render={(props) => {
               return <Auth
@@ -92,6 +100,7 @@ class App extends Component {
               }}
                 {...props}/>
             }}/>
+            </Switch>
           </div>
         </BrowserRouter>
       </div>

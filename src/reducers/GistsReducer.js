@@ -1,11 +1,15 @@
-import * as actionTypes from '../actions/userActionTypes';
+import * as actionTypes from '../actions/UserActionTypes';
 
 export const STATE_KEY = 'currentUser';
 
 const initialState = {
     isLoading: false,
     gists: [],
-    error: ''
+    error: '',
+    currentGist: {
+        description: '',
+        files: [{}]
+    }
 }
 
 export default function gistsReducer(state = initialState, action) {
@@ -32,7 +36,38 @@ export default function gistsReducer(state = initialState, action) {
         break;
     
     case actionTypes.GETALL_FAILURE:
-        console.log('GET_LIST_ERROR : ', action.error)
+        console.log('GET_LISTS_ERROR : ', action.error)
+        return {
+            ...state,
+            isLoading: false
+        }
+
+    case actionTypes.RESET_GIST:
+        return {
+            ...state,
+            currentGist: {
+                description: '',
+                files: [{}]
+            }
+        }
+
+    case actionTypes.GETONE_SUCCESS:
+        if(payload) {
+            console.log("Current Gist:",payload)
+
+            return {
+                ...state,
+                isLoading: false,
+                currentGist: payload
+            }
+        }
+        else {
+            alert('Not Found')
+        }
+        break;
+    
+    case actionTypes.GETONE_FAILURE:
+        console.log('GET_SINGLE_LIST_ERROR : ', action.error)
         return {
             ...state,
             isLoading: false

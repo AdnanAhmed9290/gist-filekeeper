@@ -1,4 +1,4 @@
-import * as ActionTypes from './userActionTypes';
+import * as ActionTypes from './UserActionTypes';
 import axios from 'axios';
 
 const API_URL = 'https://api.github.com';

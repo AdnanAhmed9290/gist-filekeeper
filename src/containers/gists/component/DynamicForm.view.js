@@ -31,7 +31,7 @@ class DynamicForm extends Component {
             }
         }
 
-        if(removeFiles.length != 0 && this.props.role === 'UPDATE') {
+        if(removeFiles.length !== 0 && this.props.role === 'UPDATE') {
 
             for(let i = files.length, j=0 ; i < (files.length + removeFiles.length) ; i++,j++ ) {
                 let names = this.state.removeFiles[j];
@@ -53,8 +53,6 @@ class DynamicForm extends Component {
         this.setState((prevState)=> ({
             files: [...prevState.files, {name: "", content: ""}]
         }))
-        const {files, description} = this.props.data;
-        // console.log('Files {}, Desc {}', files, description);
     }
 
     removeFile = (index) => {
@@ -119,7 +117,7 @@ class DynamicForm extends Component {
 
                                 <div className="btn-group"  style={styles.removeBtn}>
 
-                                    {this.props.role == 'UPDATE' && 
+                                    {this.props.role === 'UPDATE' && 
                                         <a href={file.raw_url} target="_blank" className="btn btn-info">View Raw</a>
                                         
                                     }
@@ -149,7 +147,7 @@ class DynamicForm extends Component {
                                     name={contentID}
                                     value={files[index].content}
                                     placeholder="Enter content......"></textarea>
-                                {files.length != index + 1 && <hr className="my-4"/>}
+                                {files.length !== index + 1 && <hr className="my-4"/>}
                             </div>
 
                         )
@@ -208,5 +206,6 @@ DynamicForm.styles = {
     }
 
 }
+
 
 export default DynamicForm;

@@ -4,9 +4,9 @@ import {connect} from 'react-redux';
 import { Link } from 'react-router-dom';
 import {bindActionCreators} from 'redux';
 // import axios from 'axios';
-import * as gistsActions from '../../actions/gists.actions';
+import * as gistsActions from '../../actions/GistsActions';
 
-import Pagination from '../../components/pagination/pagination'
+import Pagination from '../../components/Pagination'
 
 class Gists extends React.Component {
 
@@ -49,7 +49,7 @@ class Gists extends React.Component {
 
   handleSelectChange = (e) => {
     this.setState({pageLimit: parseInt(e.target.value, 10)})
-    this.onPageChanged
+    this.onPageChanged()
   }
 
 
