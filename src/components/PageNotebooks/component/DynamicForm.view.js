@@ -1,12 +1,14 @@
 import React, {Component} from 'react'
+import { connect } from 'react-redux'
+
 
 class DynamicForm extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            description: this.props.data.description,
-            files: this.props.data.files,
+            description: this.props.currentGist.description,
+            files: this.props.currentGist.files,
             removeFiles: []
         }
     }
@@ -207,5 +209,9 @@ DynamicForm.styles = {
 
 }
 
+DynamicForm = connect(state=> ({
+    isLoading: state.gistsReducer.notebookReducer.isLoading,
+    currentGist: state.gistsReducer.notebookReducer.currentGist 
+}),null)(DynamicForm)
 
 export default DynamicForm;

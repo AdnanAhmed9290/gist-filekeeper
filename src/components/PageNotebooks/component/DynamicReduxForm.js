@@ -28,6 +28,8 @@ class DynamicReduxForm extends React.Component {
     }
 
     console.log("Data:", data);
+    // if (this.props.onSubmit) 
+    //         this.props.onSubmit(data);
 
   }
 
@@ -65,9 +67,9 @@ class DynamicReduxForm extends React.Component {
           rows="8"
           required />
 
-        <div className="btn-group" style={{position: 'absolute', top: 0, right: 0}}>
+        <div className="btn-group" style={{position: 'absolute', top: '2em', right: 0}}>
 
-          {this.props.role == 'UPDATE' &&
+          {this.props.role === 'UPDATE' && this.props.initialValues.files[index] !== undefined &&
             <a href={this.props.initialValues.files[index].raw_url} target="_blank" className="btn btn-info">View Raw</a>
           }
           {fields.length > 1 &&
@@ -98,7 +100,7 @@ class DynamicReduxForm extends React.Component {
   render() {
     const { handleSubmit, pristine, reset, submitting, role } = this.props;
     return (
-      <form onSubmit={handleSubmit(this.onSubmit)} className="text-left">
+      <form onSubmit={handleSubmit(this.onSubmit)} className="text-left mb-5">
         <div className="form-group my-5">
           <Field
             name="description"
@@ -132,7 +134,7 @@ DynamicReduxForm = reduxForm({
 })(DynamicReduxForm);
 
 DynamicReduxForm = connect(state => ({
-  initialValues: state.gistsReducer.currentGist
+  initialValues: state.gistsReducer.notebookReducer.currentGist
 }), null)(DynamicReduxForm)
 
 export default DynamicReduxForm;

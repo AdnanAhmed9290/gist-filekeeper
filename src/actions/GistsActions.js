@@ -1,8 +1,8 @@
-import * as ActionTypes from './UserActionTypes'
+import * as ActionTypes from './userActionTypes'
 import axios from 'axios'
 
 const API_URL = 'https://api.github.com'
-// const token = JSON.parse(localStorage.getItem('access_token'));
+
 
 export function getAllGists() {
 
@@ -20,7 +20,9 @@ export function getAllGists() {
                 // console.log(data)
                 dispatch({ type: ActionTypes.GETALL_SUCCESS, payload: data })
             }).catch(error => {
-                dispatch({ type: ActionTypes.GETALL_FAILURE, error })
+                dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Failed to fetch notebooks!', variant: 'error' })
+                console.log(error)
+                dispatch({ type: ActionTypes.GETALL_FAILURE })
             })
 
     }
@@ -44,7 +46,8 @@ export function getSingleGist(id) {
             })
             .then(data => {
                 // console.log(data)
-                let gist = {
+                let notebook = {
+                    id: data.id,
                     description: data.description,
                     owner: data.owner.login,
                     created_at: data.created_at,
@@ -52,15 +55,16 @@ export function getSingleGist(id) {
                     files: []
                 }
                 Object.values(data.files).map((f, index) => {
-
-                    gist.files.push({ name: f.filename, content: f.content, raw_url: f.raw_url })
+                    notebook.files.push({ name: f.filename, content: f.content, raw_url: f.raw_url })
                     return 1
                 })
 
-                dispatch({ type: ActionTypes.GETONE_SUCCESS, payload: gist })
+                dispatch({ type: ActionTypes.GETONE_SUCCESS, payload: notebook })
 
             }).catch(error => {
-                dispatch({ type: ActionTypes.GETONE_FAILURE, error })
+                dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: "Invalid ID.. Notebook doesn't exists", variant: 'error' })
+                console.log(error)
+                dispatch({ type: ActionTypes.GETONE_FAILURE })
             })
     }
 }
@@ -80,8 +84,14 @@ export function deleteGist(id) {
             }
         }).then(payload => {
             dispatch({ type: ActionTypes.DELETE_SUCCESS, payload: id })
+            dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Notebook Deleted Successfully', variant: 'success' })
+
         })
-            .catch(error => dispatch({ type: ActionTypes.DELETE_FAILURE, error, payload: id }))
+            .catch(error => {
+                dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Delete Notebook Request Failed!', variant: 'error' })
+                console.log(error)
+                dispatch({ type: ActionTypes.DELETE_FAILURE, error, payload: id })
+            })
     }
 }
 
@@ -100,17 +110,20 @@ export function createGist(data) {
             },
             data
         }).then(payload => {
-            dispatch({ type: ActionTypes.CREATE_SUCCESS, payload })
-            // history.push('/gists')
-        }).catch(error => dispatch({ type: ActionTypes.CREATE_FAILURE, error }))
+
+            dispatch({ type: ActionTypes.CREATE_SUCCESS, payload: payload.data })
+            dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Notebook Created Successfully', variant: 'success' })
+        }).catch(error => {
+            dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Create Notebook Request Failed!', variant: 'error' })
+            console.log(error)
+            dispatch({ type: ActionTypes.CREATE_FAILURE, error })
+        })
     }
 }
 
-export function editGist(data, id) {
+export function editGist(data, id, message) {
 
     const token = JSON.parse(localStorage.getItem('access_token'));
-
-    console.log(data)
 
     return (dispatch) => {
         dispatch({ type: ActionTypes.REQUEST_GIST_ACTION });
@@ -123,8 +136,29 @@ export function editGist(data, id) {
             },
             data
         }).then(payload => {
-            dispatch({ type: ActionTypes.UPDATE_SUCCESS, payload, id })
-            // history.push('/gists')
-        }).catch(error => dispatch({ type: ActionTypes.UPDATE_FAILURE, error }))
+            const { data } = payload
+            let notebook = {
+                id: data.id,
+                description: data.description,
+                owner: data.owner.login,
+                created_at: data.created_at,
+                updated_at: data.updated_at,
+                files: []
+            }
+            Object.values(data.files).map((f, index) => {
+
+                notebook.files.push({ name: f.filename, content: f.content, raw_url: f.raw_url })
+                return 1
+            })
+
+            dispatch({ type: ActionTypes.UPDATE_SUCCESS, payload, notebook })
+            dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: message, variant: 'success' })
+
+
+        }).catch(error => {
+            dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Update Notebook Request Failed!', variant: 'error' })
+            console.log(error)
+            dispatch({ type: ActionTypes.UPDATE_FAILURE, error })
+        })
     }
 }

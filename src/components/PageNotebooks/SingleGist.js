@@ -1,16 +1,21 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as gistsActions from '../../actions/GistsActions';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as gistsActions from '../../actions/gistsActions';
 import DynamicReduxForm from './component/DynamicReduxForm';
+import DynamicForm from './component/DynamicForm.view';
 
 
-class Gist extends Component {
+class SingleGist extends Component {
 
     componentDidMount() {
         const id = this.props.match.params.id
         this.props.gistsActions.getSingleGist(id)
+    }
+
+    componentWillUnmount() {
+        this.props.gistsActions.resetCurrentGist()
     }
 
     onSubmit = (model) => {
@@ -22,13 +27,13 @@ class Gist extends Component {
 
     render() {
 
-        const { isLoading, currentGist} = this.props
+        const { isLoading, currentGist } = this.props
 
         if (isLoading) {
             return <h4>Loading.....</h4>
         }
 
-        if(currentGist == null) {
+        if (currentGist == null) {
             alert("Gist doesn't exist");
             this.props.history.push('/gists');
             return;
@@ -40,14 +45,22 @@ class Gist extends Component {
                 <h5>Owner: <b>{currentGist.owner}</b></h5>
                 <p className="m-0">Created at: {new Date(currentGist.created_at).toLocaleDateString()}</p>
                 <p className="m-0">Last Updared: {new Date(currentGist.updated_at).toLocaleDateString()}</p>
-                <DynamicReduxForm 
+                {/* <DynamicReduxForm 
                     className="updateForm"
                     onSubmit = {(model) => {this.onSubmit(model)}}
                     // data = {this.state}
                     role= "UPDATE"
                     // isFetching = {isLoading}
+                /> */}
+
+                <DynamicForm
+                    className="updateForm"
+                    onSubmit={(model) => { this.onSubmit(model) }}
+                    // data = {this.state}
+                    role="UPDATE"
+                // isFetching = {isLoading}
                 />
-                
+
 
             </div>
         )
@@ -55,18 +68,18 @@ class Gist extends Component {
 }
 
 
-Gist.prototypes = {
+SingleGist.prototypes = {
     isLoading: PropTypes.bool,
     currentGist: PropTypes.object.isRequired
 }
 
-const mapStateToProps = state => {
-    const {isLoading, currentGist} = state.gistsReducer;
-    return {isLoading, currentGist};
-}
+const mapStateToProps = state => ({
+    isLoading: state.gistsReducer.isLoading,
+    currentGist: state.gistsReducer.notebookReducer.currentGist,
+})
 
 const mapDispatchToProps = dispatch => ({
     gistsActions: bindActionCreators(gistsActions, dispatch)
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Gist);
+export default connect(mapStateToProps, mapDispatchToProps)(SingleGist);

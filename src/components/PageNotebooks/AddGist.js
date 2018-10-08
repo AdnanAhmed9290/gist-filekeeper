@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import * as gistsActions from '../../actions/GistsActions';
+import * as gistsActions from './../../actions/gistsActions';
 import DynamicReduxForm from './component/DynamicReduxForm';
 
 class AddGist extends Component {

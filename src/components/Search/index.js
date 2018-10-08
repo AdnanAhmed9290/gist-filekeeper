@@ -1,34 +1,61 @@
-import React from 'react';
 
+//libs
+import React from 'react';
+import TextField from '@material-ui/core/TextField';
+import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from "@material-ui/icons/Search";
+import { withStyles } from '@material-ui/core/styles'
+
+const styles = theme => ({
+    input: {
+        width: '300px'
+    },
+    button: {
+        marginTop: theme.spacing.unit * 2
+    }
+});
 
 class SearchBar extends React.Component {
 
+    state = { term: '' };
 
-    constructor(props) {
-        super(props);
-        this.state = { term: '' };
+    onSubmit = (e) => {
+        e.preventDefault()
+        this.props.onSearchTermChange(this.state.term)
     }
 
     render() {
+
+        const { classes } = this.props
+
         return (
             <div className="search-bar">
-                <input className="form-control"
-                    value= {this.state.term}
-                    // onChange={(event) =>
-                    // this.setState({ term: event.target.value })} 
-                    onChange={ event => this.onInputChange(event.target.value) }
-                />
-                {/* <br />
-                Value of input: {this.state.term} */}
+                <form onSubmit={this.onSubmit}>
+                    <TextField
+                        id="notebook-id"
+                        label="Notebook ID"
+                        value={this.state.term}
+                        onChange={event => this.onInputChange(event.target.value)}
+                        margin="normal"
+                        // type="number"
+                        color="secondary"
+                        className={classes.input}
+                        required
+                    />
+                    <IconButton aria-label="Search" type="submit" className={classes.button}>
+                        <SearchIcon color="secondary" />
+                    </IconButton>
+
+                </form>
+
             </div>
         );
     }
 
     onInputChange(term) {
-        this.setState({term});
-        this.props.onSearchTermChange(term);
+        this.setState({ term })
     }
 
 }
 
-export default SearchBar;
+export default withStyles(styles)(SearchBar);

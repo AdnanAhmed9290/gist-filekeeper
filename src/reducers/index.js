@@ -1,19 +1,18 @@
 import { combineReducers} from 'redux';
 // import auth from './auth.reducer';
-import userReducer from "./UserReducer";
-import gistsReducer from './GistsReducer';
-import { routerReducer } from 'react-router-redux'
+import userReducer from "./userReducer";
+import gistsReducer from './gistsReducer';
 import { reducer as formReducer } from 'redux-form'
+import toastrReducer from './toastrReducer'
 
-// import {reducer} from 'react-redux-oauth2'
 
 const rootReducer = combineReducers({
     // auth,
     userReducer,
     gistsReducer,
-    routing: routerReducer,
+    toastrReducer,
     form: formReducer
-    // oauth: reducer
+
 });
 
 export default rootReducer;

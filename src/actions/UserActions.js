@@ -1,5 +1,6 @@
-import * as ActionTypes from './UserActionTypes';
+import * as ActionTypes from './userActionTypes';
 import axios from 'axios';
+import { push } from 'connected-react-router'
 
 const API_URL = 'https://api.github.com';
 
@@ -32,8 +33,13 @@ export function logoutUser() {
   localStorage.removeItem('access_token'); 
   localStorage.removeItem('user'); 
 
-  return {
-    type: ActionTypes.LOGOUT
+  return(dispatch) => {
+    dispatch({
+      type: ActionTypes.LOGOUT
+    })
+    dispatch(push('/login'))
+
   }
+  
 
 };
