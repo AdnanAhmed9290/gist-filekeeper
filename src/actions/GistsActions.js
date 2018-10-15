@@ -97,10 +97,10 @@ export function deleteGist(id) {
 
 export function createGist(data) {
 
-    const token = JSON.parse(localStorage.getItem('access_token'));
+    const token = JSON.parse(localStorage.getItem('access_token'))
 
     return (dispatch) => {
-        dispatch({ type: ActionTypes.REQUEST_GIST_ACTION });
+        dispatch({ type: ActionTypes.REQUEST_GIST_ACTION })
 
         axios({
             url: `${API_URL}/gists`,
@@ -124,6 +124,7 @@ export function createGist(data) {
 export function editGist(data, id, message) {
 
     const token = JSON.parse(localStorage.getItem('access_token'));
+    console.log("updated data",data)
 
     return (dispatch) => {
         dispatch({ type: ActionTypes.REQUEST_GIST_ACTION });
@@ -159,6 +160,89 @@ export function editGist(data, id, message) {
             dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Update Notebook Request Failed!', variant: 'error' })
             console.log(error)
             dispatch({ type: ActionTypes.UPDATE_FAILURE, error })
+        })
+    }
+}
+
+export function moveNotebook(source, destination, fileName) {
+
+    const token = JSON.parse(localStorage.getItem('access_token'));
+
+   
+    let sourceData = {
+        "description": source.description,
+        "files": {}
+    }
+
+    sourceData.files[fileName] = null
+
+    let destData = {
+        "description": destination.description,
+        "files": {}
+    }
+
+    destData.files[fileName] = { "content" : 'Sample Content'}
+
+    console.log("Source , Destination ",sourceData, destData)
+
+    return (dispatch) => {
+
+        dispatch({
+            type: 'MOVE_NOTEBOOKS',
+            payload: { source, destination }
+        })
+    
+        axios({
+            url: `${API_URL}/gists/${source.id}`,
+            method: "PATCH",
+            headers: {
+                "Authorization": `token ${token}`
+            },
+            data: sourceData
+        })
+            .then(resp => {
+                console.log('First request is successfull')
+
+                axios({
+                    url: `${API_URL}/gists/${destination.id}`,
+                    method: "PATCH",
+                    headers: {
+                        "Authorization": `token ${token}`
+                    },
+                    data: destData
+                })
+                .then(resp => {
+                    console.log('Data : ', resp.data)
+                    dispatch({
+                        type: 'MOVE_NOTEBOOKS',
+                        payload: { source, destination }
+                    })
+                    dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: "Note moved successfully!", variant: 'info' })
+
+                })
+                .catch(error => {
+
+                    dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: 'Note destination not found', variant: 'error' })
+                    console.log(error)
+                    dispatch({ type: ActionTypes.UPDATE_FAILURE, error })
+    
+                })
+            })
+            .catch(error => {
+
+                dispatch({ type: ActionTypes.TOAST_DASH_MESSAGE, payload: "Can't perform this action", variant: 'error' })
+                console.log(error)
+                dispatch({ type: ActionTypes.UPDATE_FAILURE, error })
+
+            })
+    }
+}
+
+export function reOrderNotebooks(result) {
+    return (dispatch) => {
+        dispatch({
+            type: 'RE_ORDER_NOTEBOOKS',
+            payload: result
         })
     }
 }

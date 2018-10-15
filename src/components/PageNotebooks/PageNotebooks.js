@@ -1,47 +1,39 @@
-import React from 'react';
+
+// @flow
+
 // libs
 
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableFooter from '@material-ui/core/TableFooter';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Toolbar from '@material-ui/core/Toolbar';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 import IconButton from '@material-ui/core/IconButton'
 
-import ShareIcon from '@material-ui/icons/Share'
-import DeleteIcon from '@material-ui/icons/Delete'
+import ListViewIcon from '@material-ui/icons/ViewList'
+import BoardViewIcon from '@material-ui/icons/ViewModule'
+
 
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { toastr } from 'react-redux-toastr'
+import { pathOr } from 'ramda';
+
 // src
 
 import * as gistsActions from './../../actions/gistsActions'
 import * as toastActions from './../../actions/toastrActions'
-import { CircularProgress } from '@material-ui/core';
-import TablePaginationActionsWrapped from './component/TablePaginationActions'
+// import { CircularProgress } from '@material-ui/core';
 import NotebookModal from './../Modals/NotebookModal'
+import ListViewNotebooks from "./component/ListViewNotebooks"
+import BoardViewNotebooks from "./component/BoardViewNotebooks";
 
-
-let counter = 0;
-function createData(name, status, notes, created, note_id) {
-  counter += 1;
-  return { id: counter, name, status, notes, created, note_id };
-}
 
 const styles = theme => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing.unit ,
+    paddingBottom: '1px'
   },
   table: {
     minWidth: 500,
@@ -64,16 +56,25 @@ const styles = theme => ({
   },
 });
 
-class EnhancedTable extends React.Component {
+type Props = {
+  gistsActions: Object,
+  toastActions: Object,
+  classes: Object,
+  isLoading: bool,
+  notebooks: Array<Object>,
+}
+
+type State = {
+  view: bool
+}
+
+class PageNotebooks extends React.Component<Props, State> {
   state = {
-    page: 0,
-    rowsPerPage: 5,
+    view: false
   };
 
   componentWillMount() {
-    this.props.gistsActions.getAllGists(() => {
-      alert('as')
-    })
+    this.props.gistsActions.getAllGists()
   }
 
   handleChangePage = (event, page) => {
@@ -102,7 +103,7 @@ class EnhancedTable extends React.Component {
 
   updateNotebook = (title, id) => {
 
-    const message = "Notebook Title Updated Successfully"    
+    const message = "Notebook Title Updated Successfully"
     const data = {
       "description": title,
       "files": {}
@@ -110,135 +111,63 @@ class EnhancedTable extends React.Component {
 
     console.log(data, id)
     this.props.gistsActions.editGist(data, id, message)
-  
+
+  }
+
+  addNewNote = (data, id) => {
+    const message = "New note added Successfully!"
+
+    console.log(data, id)
+    this.props.gistsActions.editGist(data, id, message)
   }
 
   render() {
     const { classes, isLoading, notebooks } = this.props;
-    const { rowsPerPage, page } = this.state;
-    counter = 0;
-    const rows = notebooks.map(item => {
-      const status = item.public ? 'Public' : 'Private'
-      const length = Object.values(item.files).length
-      const created = new Date(item.created_at).toLocaleDateString()
-      return createData(item.description, status, length, created, item.id)
-    })
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
     return (
-      <Paper className={classes.root}>
-        <Toolbar className={classes.highlight}>
-          <div className={classes.title}>
-            <Typography variant="title" id="tableTitle" className={classes.highlight}>
-              My Notebooks
+      <React.Fragment>
+        <div className="btn-group text-right">
+          <IconButton onClick={() => this.setState({ view: false })} >
+            <BoardViewIcon />
+          </IconButton>
+          <IconButton onClick={() => this.setState({ view: true })} >
+            <ListViewIcon />
+          </IconButton>
+        </div>
+
+        <Paper className={classes.root}>
+          <Toolbar className={classes.highlight}>
+            <div className={classes.title}>
+              <Typography variant="title" id="tableTitle" className={classes.highlight}>
+                My Notebooks
             </Typography>
 
-          </div>
-          <div className={classes.spacer} />
-          <div className={classes.actions}>
-            {/* <Button variant="contained" color="secondary">
-              Add New
-            </Button> */}
-            <NotebookModal type="CREATE" name="" onCreateNotebook={title => this.createNotebook(title)} />
-          </div>
-        </Toolbar>
-        <div className={classes.tableWrapper}>
-          <Table className={classes.table}>
-            <TableHead>
-              <TableRow>
-                <TableCell component="th">#</TableCell>
-                <TableCell component="th">Name</TableCell>
-                <TableCell component="th">Status</TableCell>
-                <TableCell component="th">Notes</TableCell>
-                <TableCell component="th">Created At</TableCell>
-                <TableCell component="th">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+            </div>
+            <div className={classes.spacer} />
+            <div className={classes.actions}>
+              <NotebookModal type="CREATE" name="" onCreateNotebook={title => this.createNotebook(title)} />
+            </div>
+          </Toolbar>
 
-              {
-                isLoading ?
-                  <TableRow>
-                    <TableCell component="th" scope="row" colSpan="6" className="py-5 text-center">
-                      <CircularProgress color="secondary" />
-                    </TableCell>
-                  </TableRow> :
-                  <React.Fragment>
 
-                    {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
-                      return (
-                        <TableRow key={row.note_id}>
-                          <TableCell className="text-left" numeric>{row.id}</TableCell>
-                          <TableCell className="text-left" component="th" scope="row">
-                            <Link to={`/notes/${row.note_id}`}>
-                              <Typography variant="subheading" color="secondary">{row.name}</Typography>
-                            </Link>
-                          </TableCell>
-                          <TableCell className="text-left" numeric>{row.status}</TableCell>
-                          <TableCell className="text-left" numeric>{row.notes}</TableCell>
-                          <TableCell className="text-left" numeric>{row.created}</TableCell>
-                          <TableCell className="text-left" numeric>
-                            {/* <IconButton color="primary" >
-                              <EditIcon />
-                            </IconButton> */}
-                            <NotebookModal type="UPDATE" name={row.name} id={row.note_id} onUpdateNotebook={this.updateNotebook}/>
-                            &nbsp;
-                            <CopyToClipboard
-                              onCopy={()=> this.props.toastActions.acToastDashMessage('Notebook ID Copied to clipboard!','info')}
-                              text={row.note_id}
-                            >
-                              <IconButton color="secondary">
-                                <ShareIcon />
-                              </IconButton>
-                            </CopyToClipboard>
-                              
-                            &nbsp;
-                              <IconButton variant="fab" onClick={() => { this.props.gistsActions.deleteGist(row.note_id) }} >
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                    {emptyRows > 0 && (
-                      <TableRow style={{ height: 48 * emptyRows }}>
-                        <TableCell colSpan={6} />
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-              }
+          {
+            this.state.view ?
+              <ListViewNotebooks notebooks={notebooks} isLoading={isLoading} updateNotebook={this.updateNotebook}/> :
+              <BoardViewNotebooks isLoading={isLoading} notebooks={notebooks} updateNotebook={this.addNewNote} />
+          }
 
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TablePagination
-                  colSpan={3}
-                  count={rows.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={this.handleChangePage}
-                  onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                  ActionsComponent={TablePaginationActionsWrapped}
-                />
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </div>
-      </Paper>
+        </Paper>
+
+      </React.Fragment>
     );
   }
 }
 
-EnhancedTable.propTypes = {
-  classes: PropTypes.object.isRequired,
-  isLoading: PropTypes.bool,
-  notebooks: PropTypes.array.isRequired,
-};
 
 const mapStateToProps = state => ({
-  isLoading: state.gistsReducer.isLoading,
-  notebooks: state.gistsReducer.notebookReducer.gists,
-  user: state.userReducer.user
+  isLoading: pathOr(false, ['gistsReducer', 'isLoading'], state),
+  notebooks: pathOr([], ['gistsReducer', 'notebookReducer', 'gists'], state),
+  user: pathOr({}, ['userReducer', 'user'], state)
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -246,7 +175,7 @@ const mapDispatchToProps = dispatch => ({
   toastActions: bindActionCreators(toastActions, dispatch)
 })
 
-EnhancedTable = connect(mapStateToProps, mapDispatchToProps)(EnhancedTable)
-EnhancedTable = withStyles(styles)(EnhancedTable)
+PageNotebooks = connect(mapStateToProps, mapDispatchToProps)(PageNotebooks)
+PageNotebooks = withStyles(styles)(PageNotebooks)
 
-export default EnhancedTable;
+export default PageNotebooks;

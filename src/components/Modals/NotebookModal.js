@@ -129,8 +129,8 @@ class NotebookModal extends React.Component {
 
 NotebookModal.propTypes = {
     classes: PropTypes.object.isRequired,
-    name: PropTypes.object.isRequired,
-    type: PropTypes.bool.isRequired
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired
 };
 
 // We need an intermediary variable for handling the recursive nesting.

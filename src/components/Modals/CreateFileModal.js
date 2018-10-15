@@ -1,8 +1,9 @@
 
+// @flow
+
 // libs
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Modal from '@material-ui/core/Modal';
@@ -41,7 +42,20 @@ const styles = theme => ({
     },
 });
 
-class CreateFileModal extends React.Component {
+type Props = {
+    classes: Object,
+    data: Object,
+    type: bool,
+    updateNotebook: Function
+}
+
+type State = {
+    open: bool,
+    title: string,
+    content: string
+}
+
+class CreateFileModal extends React.Component<Props, State> {
     state = {
         open: false,
         title: this.props.data.name,
@@ -60,7 +74,7 @@ class CreateFileModal extends React.Component {
         e.preventDefault()
         const { title, content } = this.state
         const oldTitle = this.props.data.name
-        const data = {
+        let data = {
             "description": '',
             "files": {}
         }
@@ -79,9 +93,14 @@ class CreateFileModal extends React.Component {
             open: false
         })
 
-        this.props.updateNotebook(data)
+        if (this.props.id !== undefined) {
+            data.description = this.props.data.description
+            this.props.updateNotebook(data, this.props.id)
+        }
+        else
+            this.props.updateNotebook(data)
 
-        
+
     }
 
     render() {
@@ -92,13 +111,13 @@ class CreateFileModal extends React.Component {
 
                 {
                     type === 'CREATE' ?
-                        <Button onClick={this.handleOpen} variant="fab" color="secondary">
+                        <Button onClick={this.handleOpen} variant="fab" color="primary">
                             <AddIcon />
                         </Button>
-                    :
-                    <IconButton onClick={this.handleOpen} color="secondary">
-                        <EditIcon />
-                    </IconButton>
+                        :
+                        <IconButton onClick={this.handleOpen} color="default">
+                            <EditIcon />
+                        </IconButton>
                 }
                 <Modal
                     aria-labelledby="simple-modal-title"
@@ -154,11 +173,6 @@ class CreateFileModal extends React.Component {
     }
 }
 
-CreateFileModal.propTypes = {
-    classes: PropTypes.object.isRequired,
-    data: PropTypes.object.isRequired,
-    type: PropTypes.bool.isRequired
-};
 
 // We need an intermediary variable for handling the recursive nesting.
 CreateFileModal = withStyles(styles)(CreateFileModal);

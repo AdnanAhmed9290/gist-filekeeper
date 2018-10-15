@@ -15,7 +15,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import DraftsIcon from '@material-ui/icons/Notes';
 
 // src
-import FileModal from "../Modals/FileModal";
+// import FileModal from "../Modals/FileModal";
 import EditModal from '../Modals/CreateFileModal'
 import { Typography } from '@material-ui/core';
 
@@ -25,35 +25,43 @@ class SingleFile extends Component {
         open: false
     }
 
+    onDelete = () => {
+        const { data, onDelete } = this.props
+        this.setState({ open: false })
+        onDelete(data.name)
+    }
+
     render() {
-        
-        const {data, access, onDelete} = this.props
-        
+
+        const { data, access } = this.props
+
         return (
             <React.Fragment>
-                <ListItem button onClick={() => { this.setState({ open: !this.state.open }) }} selected={this.state.open}>
+                <ListItem button onClick={() => { this.setState(() => ({ open: !this.state.open })) }} selected={this.state.open}>
                     <ListItemIcon>
                         <DraftsIcon />
                     </ListItemIcon>
                     <ListItemText inset primary={data.name} />
-                    {this.state.open ? <ExpandLess color="secondary" /> : <ExpandMore color="secondary"/>}
+                    {this.state.open ? <ExpandLess color="secondary" /> : <ExpandMore color="secondary" />}
                 </ListItem>
-                <Collapse in={this.state.open} timeout="auto" align="left"  unmountOnExit>
-                    <div className="btn-group my-3 text-left pl-5">
+                <Collapse in={this.state.open} timeout="auto" align="left" color="secondary" unmountOnExit>
+                    <div className="collapseBody my-3 text-left px-5 w-100 position-relative">
                         <div className="content">
-                            <Typography variant="body2" >{data.content}</Typography>
+                            <Typography variant="body2" style={{ whiteSpace: 'pre-line' }} >{data.content}</Typography>
                         </div>
                         {/* <FileModal data={data}/> */}
                         {
                             access === "READ_WRITE" &&
-                            <React.Fragment>
+                            <div className="btn-group position-absolute" style={{ top: 0, right: 0 }}>
                                 &nbsp;
                                 <EditModal type="EDIT" data={data} updateNotebook={this.props.onNotebookUpdate} />
                                 &nbsp;
-                                <IconButton color="default" onClick={() => {onDelete(data.name)}}>
-                                    <DeleteIcon />
-                                </IconButton>
-                            </React.Fragment>
+                                <div>
+                                    <IconButton color="default" onClick={this.onDelete}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </div>
+                            </div>
                         }
                     </div>
                 </Collapse>

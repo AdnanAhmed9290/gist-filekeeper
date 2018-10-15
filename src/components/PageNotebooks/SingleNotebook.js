@@ -1,13 +1,14 @@
 
+// @flow
+
 // libs
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as gistsActions from '../../actions/gistsActions';
 import { withStyles } from '@material-ui/core';
-
+import { pathOr } from 'ramda'
 
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -32,8 +33,16 @@ const styles = theme => ({
     }
 });
 
+type Props = {
+    isLoading: bool,
+    notebook: Object,
+    gistsActions: Object,
+    match: Object,
+    classes: Object
+}
 
-class SingleGist extends Component {
+
+class SingleGist extends Component<Props> {
 
     componentDidMount() {
         const id = this.props.match.params.id
@@ -43,13 +52,7 @@ class SingleGist extends Component {
     componentWillUnmount() {
         this.props.gistsActions.resetCurrentGist()
     }
-
-    // onSubmit = (model) => {
-    //     console.log('Data: ', model)
-    //     const id = this.props.match.params.id
-    //     this.props.gistsActions.editGist(model, id)
-    // }
-
+    
     updateNotebook = (data) => {
         const id = this.props.match.params.id
         const message = "Note Updated Successfully"
@@ -92,14 +95,10 @@ class SingleGist extends Component {
 }
 
 
-SingleGist.prototypes = {
-    isLoading: PropTypes.bool,
-    notebook: PropTypes.object.isRequired
-}
-
 const mapStateToProps = state => ({
-    isLoading: state.gistsReducer.isLoading,
-    notebook: state.gistsReducer.notebookReducer.currentGist
+    // isLoading: state.gistsReducer.isLoading,
+    isLoading: pathOr(false, ['gistsReducer', 'isLoading'], state),
+    notebook: pathOr({}, ['gistsReducer', 'notebookReducer','currentGist'], state)
 })
 
 const mapDispatchToProps = dispatch => ({

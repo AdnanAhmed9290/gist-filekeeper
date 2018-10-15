@@ -13,7 +13,9 @@
     "lodash": "^4.17.11",
     "prop-types": "^15.6.2",
     "qs": "^6.5.2",
+    "ramda": "^0.25.0",
     "react": "^16.5.2",
+    "react-beautiful-dnd": "^9.0.2",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.5.2",
     "react-github-login": "^1.0.3",
@@ -37,6 +39,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "server": "node server.js"
+    "server": "node server.js",
+    "flow": "flow"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.82.0"
   }
 }

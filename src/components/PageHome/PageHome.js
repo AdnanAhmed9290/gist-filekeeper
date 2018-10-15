@@ -1,7 +1,8 @@
+// @flow
+
 // libs
-// import debounce from 'lodash/debounce';
-import React from 'react';
-// import PropTypes from 'prop-types';
+
+import * as React from 'react';
 import {connect} from "react-redux"
 import { bindActionCreators } from 'redux';
 
@@ -18,6 +19,13 @@ import NotebookDetail from './../NotebookFiles/NotebookDetail';
 import * as gistActions from './../../actions/gistsActions';
 
 
+type Props = {
+  gistActions: Object,
+  isLoading: bool,
+  notebook: Object,
+  classes: Object
+}
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -32,8 +40,8 @@ const styles = theme => ({
   }
 });
 
-class PageHome extends React.Component {
-  state = { user: null, open: false }
+class PageHome extends React.Component<Props> {
+  // state = { user: null, open: false }
 
   onSearchTermChange = (term) => {
     alert(term)
@@ -58,7 +66,7 @@ class PageHome extends React.Component {
     const { classes, isLoading, notebook } = this.props
 
     return (
-        <Grid container={false} spacing={24} >
+        <Grid container spacing={24} >
           <Grid item xs={12}>
             <Paper className={classes.paper}>
               <SearchBar onSearchTermChange={(id) => this.getNotebook(id)} />
@@ -69,14 +77,14 @@ class PageHome extends React.Component {
             }
           </Grid>
           <br />
-          <Grid item xs={12} spacing={24} >
+          <Grid item xs={12} >
             <Paper className={classes.paper}>
               <Typography variant="display1" gutterBottom style={{ marginBottom: '1em' }} color='secondary'>Notebook Detail</Typography>
               <NotebookDetail isLoading={isLoading} notebook={notebook}/>
             </Paper>
           </Grid>
           <br />
-          <Grid item xs={12} spacing={24}>
+          <Grid item xs={12} >
             <Paper className={classes.paper}>
                 <NotebookFiles files={notebook.files} access="READ_ONLY"/>
             </Paper>

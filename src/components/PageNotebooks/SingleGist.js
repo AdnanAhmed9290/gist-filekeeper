@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as gistsActions from '../../actions/gistsActions';
-import DynamicReduxForm from './component/DynamicReduxForm';
+// import DynamicReduxForm from './component/DynamicReduxForm';
 import DynamicForm from './component/DynamicForm.view';
 
 
